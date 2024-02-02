@@ -105,3 +105,15 @@
   })
   fmt.Printf("%#v", ret)
   ```
+  
+- 发送文件类型的消息
+
+  ```go
+  fbytes, _ := os.ReadFile("/Users/hezhang/Desktop/test.png")
+  ret, err := client.File("test.png", fbytes)
+  if err != nil {
+      fmt.Println(err)
+  } else {
+      fmt.Printf("%#v", ret)
+  }
+  ```

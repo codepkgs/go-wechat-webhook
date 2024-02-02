@@ -9,7 +9,7 @@ type Client struct {
 	WebhookAddress string
 }
 
-var ErrWebhookAddress = fmt.Errorf(`wechat webhook address must begin with "http://" or "https://"`)
+var ErrWebhookAddress = fmt.Errorf(`wechat webhook address must begin with "http://" or "https://" and include "key" querystring`)
 
 func NewClient(webhookAddress string) (*Client, error) {
 	if !strings.HasPrefix(webhookAddress, "http://") && !strings.HasPrefix(webhookAddress, "https://") {

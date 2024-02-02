@@ -6,14 +6,18 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	"io"
+	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
 
 // RobotReturn 微信机器人返回的结果
 type RobotReturn struct {
-	ErrCode int64  `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
+	Errcode int64  `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
 }
 
 // ReturnResult 返回结果
@@ -152,6 +156,84 @@ func (c *Client) News(articles []NewsArticle) (*RobotReturn, error) {
 		News: struct {
 			Articles []NewsArticle `json:"articles"`
 		}{Articles: articles},
+	}
+
+	body, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.do(c.WebhookAddress, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReturnResult(resp)
+}
+
+// putFile 上传文件
+func (c *Client) putFile(filename string, fileBytes []byte) (string, error) {
+	// get key
+	u, err := url.Parse(c.WebhookAddress)
+	if err != nil {
+		return "", err
+	}
+	key := u.Query().Get("key")
+	if key == "" {
+		return "", ErrWebhookAddress
+	}
+
+	r := resty.New().
+		SetTimeout(time.Duration(RequestTimeout)*time.Millisecond).
+		R().
+		SetFileReader("media", filename, bytes.NewReader(fileBytes))
+
+	resp, err := r.Post(fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media?key=%s&type=%s", key, "file"))
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return "", fmt.Errorf("status: %d, body: %s", resp.StatusCode(), resp.Body())
+	}
+
+	type putFileResult struct {
+		Errcode   int64  `json:"errcode"`
+		Errmsg    string `json:"errmsg"`
+		Type      string `json:"type"`
+		MediaId   string `json:"media_id"`
+		CreatedAt string `json:"created_at"`
+	}
+
+	var pfr putFileResult
+	err = json.Unmarshal(resp.Body(), &pfr)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Printf("#%v", pfr)
+
+	return pfr.MediaId, nil
+}
+
+// File 文件类型的消息
+func (c *Client) File(filename string, fileBytes []byte) (*RobotReturn, error) {
+	mid, err := c.putFile(filename, fileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(mid)
+
+	t := struct {
+		Msgtype string `json:"msgtype"`
+		File    struct {
+			MediaId string `json:"media_id"`
+		} `json:"file"`
+	}{
+		Msgtype: "file",
+		File: struct {
+			MediaId string `json:"media_id"`
+		}{MediaId: mid},
 	}
 
 	body, err := json.Marshal(t)
