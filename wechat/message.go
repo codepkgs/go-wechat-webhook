@@ -127,3 +127,41 @@ func (c *Client) Image(image []byte) (*RobotReturn, error) {
 
 	return ReturnResult(resp)
 }
+
+type NewsArticle struct {
+	Title       string `json:"title"`                 // 标题，不超过128个字节，超过会自动截断
+	Url         string `json:"url"`                   // 描述，不超过512个字节，超过会自动截断
+	Description string `json:"description,omitempty"` // 点击后跳转的链接。
+	Picurl      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图 1068*455，小图150*150。
+}
+
+// News 图文类型的消息
+func (c *Client) News(articles []NewsArticle) (*RobotReturn, error) {
+	// 超过8条取前8条
+	if len(articles) > 8 {
+		articles = articles[:8]
+	}
+
+	t := struct {
+		Msgtype string `json:"msgtype"`
+		News    struct {
+			Articles []NewsArticle `json:"articles"`
+		} `json:"news"`
+	}{
+		Msgtype: "news",
+		News: struct {
+			Articles []NewsArticle `json:"articles"`
+		}{Articles: articles},
+	}
+
+	body, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.do(c.WebhookAddress, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReturnResult(resp)
+}

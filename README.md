@@ -11,7 +11,7 @@
 - [x] 文本类型 `client.Text`
 - [x] Markdown类型 `client.Markdown`
 - [x] 图片类型 `client.Image`
-- [ ] 图文类型 `client.News`
+- [x] 图文类型 `client.News`
 - [ ] 文件类型 `client.File`
 
 # 示例
@@ -87,4 +87,21 @@
   } else {
       fmt.Printf("%#v", ret)
   }
+  ```
+  
+- 发送图文类型的消息
+  
+  ```
+  Title       // 标题，不超过128个字节，超过会自动截断。必选
+  Url         // 描述，不超过512个字节，超过会自动截断。必选
+  Description // 点击后跳转的链接。可选
+  Picurl      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图 1068*455，小图150*150。可选
+  ```
+
+  ```go
+  ret, _ := client.News([]wechat.NewsArticle{
+      {Title: "点击图片跳转到百度", Description: "百度搜索", Url: "https://m.baidu.com", Picurl: "https://img.zcool.cn/community/01ab1f554496aa0000019ae9a878ba.jpg@1280w_1l_2o_100sh.jpg"},
+      {Title: "点击图片跳转到京东", Description: "京东购物", Url: "https://m.jd.com", Picurl: "https://img2.baidu.com/it/u=1388560115,51053335&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=800"},
+  })
+  fmt.Printf("%#v", ret)
   ```
