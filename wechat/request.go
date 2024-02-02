@@ -19,7 +19,7 @@ func (c *Client) do(url string, bytes []byte) ([]byte, error) {
 		SetHeader("Content-Type", "application/json")
 
 	r.SetBody(bytes)
-
+	fmt.Println(string(bytes))
 	resp, err := r.Post(url)
 
 	if err != nil {

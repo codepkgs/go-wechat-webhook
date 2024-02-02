@@ -43,3 +43,24 @@
       fmt.Printf("%#v", ret)
   }
   ```
+
+- 发送Markdown消息
+
+  注意：如果使用多行字符串的话，需要设置 `replaceAllTable` 为 `true`，将所有的 `\n\t` 替换为 `\n`，否则发出来的可能不是Markdown格式的消息。
+
+  ```go
+  ret, err := client.Markdown(fmt.Sprintf(`
+  # %s
+  **%s**
+  [这是一个链接](%s)
+  > 这是一个引用文本
+  * 列表1
+  * 列表2
+  <font color="red">红色字体</font>`, "一级标题", "加粗", "http://work.weixin.qq.com/api/doc"), true,
+  )
+  if err != nil {
+      fmt.Println(err)
+  } else {
+      fmt.Printf("%#v", ret)
+  }
+  ```

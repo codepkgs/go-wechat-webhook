@@ -2,6 +2,7 @@ package wechat
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 // RobotReturn 微信机器人返回的结果
@@ -39,6 +40,36 @@ func (c *Client) Text(content string, atMobiles []string, isAtAll bool) (*RobotR
 			Content             string   `json:"content"`
 			MentionedMobileList []string `json:"mentioned_mobile_list"`
 		}{Content: content, MentionedMobileList: atMobiles},
+	}
+
+	body, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.do(c.WebhookAddress, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReturnResult(resp)
+}
+
+// Markdown Markdown类型
+func (c *Client) Markdown(content string, replaceAllTable bool) (*RobotReturn, error) {
+	if replaceAllTable {
+		content = strings.ReplaceAll(content, "\n\t", "\n")
+	}
+
+	t := struct {
+		Msgtype  string `json:"msgtype"`
+		Markdown struct {
+			Content string `json:"content"`
+		} `json:"markdown"`
+	}{
+		Msgtype: "markdown",
+		Markdown: struct {
+			Content string `json:"content"`
+		}{Content: content},
 	}
 
 	body, err := json.Marshal(t)
