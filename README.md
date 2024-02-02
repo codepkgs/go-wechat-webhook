@@ -70,7 +70,7 @@
   注意：图片类型支持png和jpg格式，不能超过2M。
 
   ```go
-  f, err := os.Open("/Users/hezhang/Desktop/test.png")
+  f, err := os.Open("/Users/coder/Desktop/test.png")
   if err != nil {
       fmt.Println(err)
   }
@@ -109,7 +109,7 @@
 - 发送文件类型的消息
 
   ```go
-  fbytes, _ := os.ReadFile("/Users/hezhang/Desktop/test.png")
+  fbytes, _ := os.ReadFile("/Users/coder/Desktop/test.png")
   ret, err := client.File("test.png", fbytes)
   if err != nil {
       fmt.Println(err)
