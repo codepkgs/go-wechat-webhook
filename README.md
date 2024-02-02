@@ -13,6 +13,7 @@
 - [x] 图片类型 `client.Image`
 - [x] 图文类型 `client.News`
 - [x] 文件类型 `client.File`
+- [x] 语音类型 `client.Voice`
 
 # 示例
 
@@ -108,6 +109,9 @@
   
 - 发送文件类型的消息
 
+  > 文件大小不超过20M
+  > 
+
   ```go
   fbytes, _ := os.ReadFile("/Users/coder/Desktop/test.png")
   ret, err := client.File("test.png", fbytes)
@@ -117,3 +121,8 @@
       fmt.Printf("%#v", ret)
   }
   ```
+  
+- 发送语音类型的消息
+  
+  > 机器人限制：文件大小不超过2M，播放长度不超过60s，仅支持AMR格式
+  > 操作方式和文件类型类似

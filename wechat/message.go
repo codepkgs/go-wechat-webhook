@@ -171,7 +171,7 @@ func (c *Client) News(articles []NewsArticle) (*RobotReturn, error) {
 }
 
 // putFile 上传文件
-func (c *Client) putFile(filename string, fileBytes []byte) (string, error) {
+func (c *Client) putFile(filename string, fileBytes []byte, fileType string) (string, error) {
 	// get key
 	u, err := url.Parse(c.WebhookAddress)
 	if err != nil {
@@ -187,7 +187,7 @@ func (c *Client) putFile(filename string, fileBytes []byte) (string, error) {
 		R().
 		SetFileReader("media", filename, bytes.NewReader(fileBytes))
 
-	resp, err := r.Post(fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media?key=%s&type=%s", key, "file"))
+	resp, err := r.Post(fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media?key=%s&type=%s", key, fileType))
 	if err != nil {
 		return "", err
 	}
@@ -217,12 +217,10 @@ func (c *Client) putFile(filename string, fileBytes []byte) (string, error) {
 
 // File 文件类型的消息
 func (c *Client) File(filename string, fileBytes []byte) (*RobotReturn, error) {
-	mid, err := c.putFile(filename, fileBytes)
+	mid, err := c.putFile(filename, fileBytes, "file")
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(mid)
 
 	t := struct {
 		Msgtype string `json:"msgtype"`
@@ -232,6 +230,37 @@ func (c *Client) File(filename string, fileBytes []byte) (*RobotReturn, error) {
 	}{
 		Msgtype: "file",
 		File: struct {
+			MediaId string `json:"media_id"`
+		}{MediaId: mid},
+	}
+
+	body, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.do(c.WebhookAddress, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReturnResult(resp)
+}
+
+// Voice 语音类型的消息
+func (c *Client) Voice(filename string, fileBytes []byte) (*RobotReturn, error) {
+	mid, err := c.putFile(filename, fileBytes, "voice")
+	if err != nil {
+		return nil, err
+	}
+
+	t := struct {
+		Msgtype string `json:"msgtype"`
+		Voice   struct {
+			MediaId string `json:"media_id"`
+		} `json:"voice"`
+	}{
+		Msgtype: "voice",
+		Voice: struct {
 			MediaId string `json:"media_id"`
 		}{MediaId: mid},
 	}
