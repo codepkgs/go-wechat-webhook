@@ -9,8 +9,8 @@
 [群机器人](https://developer.work.weixin.qq.com/document/path/91770)
 
 - [x] 文本类型 `client.Text`
-- [ ] Markdown类型 `client.Markdown`
-- [ ] 图片类型 `client.Image`
+- [x] Markdown类型 `client.Markdown`
+- [x] 图片类型 `client.Image`
 - [ ] 图文类型 `client.News`
 - [ ] 文件类型 `client.File`
 
@@ -58,6 +58,30 @@
   * 列表2
   <font color="red">红色字体</font>`, "一级标题", "加粗", "http://work.weixin.qq.com/api/doc"), true,
   )
+  if err != nil {
+      fmt.Println(err)
+  } else {
+      fmt.Printf("%#v", ret)
+  }
+  ```
+
+- 发送图片类型的消息
+
+  注意：图片类型支持png和jpg格式，不能超过2M。
+
+  ```go
+  f, err := os.Open("/Users/hezhang/Desktop/test.png")
+  if err != nil {
+      fmt.Println(err)
+  }
+  defer func() { _ = f.Close() }()
+
+  ibs, err := io.ReadAll(f)
+  if err != nil {
+      fmt.Println(err)
+  }
+
+  ret, err := client.Image(ibs)
   if err != nil {
       fmt.Println(err)
   } else {
