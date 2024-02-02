@@ -12,7 +12,7 @@
 - [x] Markdown类型 `client.Markdown`
 - [x] 图片类型 `client.Image`
 - [x] 图文类型 `client.News`
-- [ ] 文件类型 `client.File`
+- [x] 文件类型 `client.File`
 
 # 示例
 
